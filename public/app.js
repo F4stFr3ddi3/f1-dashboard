@@ -12,6 +12,7 @@
   const circuitDetailEl = document.getElementById("circuit-detail");
 
   let countdownTimerId = null;
+  let circuitTracksPromise = null;
 
   init();
 
@@ -221,38 +222,30 @@
     `;
   }
 
-  function renderCircuitDetail(race) {
+  function loadCircuitTracks() {
+    if (!circuitTracksPromise) {
+      circuitTracksPromise = fetch("/data/circuits.json")
+        .then((res) => (res.ok ? res.json() : {}))
+        .catch(() => ({}));
+    }
+    return circuitTracksPromise;
+  }
+
+  async function renderCircuitDetail(race) {
     const lat = parseFloat(race.lat);
     const long = parseFloat(race.long);
-
-    if (isNaN(lat) || isNaN(long)) {
-      circuitDetailEl.classList.remove("is-visible");
-      circuitDetailEl.innerHTML = "";
-      return;
-    }
-
-    const latOffset = 0.025;
-    const lonOffset = 0.025 / Math.max(Math.cos((lat * Math.PI) / 180), 0.15);
-    const bbox = [
-      long - lonOffset,
-      lat - latOffset,
-      long + lonOffset,
-      lat + latOffset,
-    ].join(",");
-    const mapSrc = `https://www.openstreetmap.org/export/embed.html?bbox=${encodeURIComponent(
-      bbox
-    )}&layer=mapnik&marker=${lat}%2C${long}`;
-    const largeMapUrl = `https://www.openstreetmap.org/?mlat=${lat}&mlon=${long}#map=15/${lat}/${long}`;
     const location = [race.locality, race.country].filter(Boolean).join(", ");
+    const largeMapUrl =
+      !isNaN(lat) && !isNaN(long)
+        ? `https://www.openstreetmap.org/?mlat=${lat}&mlon=${long}#map=15/${lat}/${long}`
+        : null;
+
+    const tracks = await loadCircuitTracks();
+    const trackPoints = race.circuitId ? tracks[race.circuitId] : null;
 
     circuitDetailEl.innerHTML = `
       <div class="circuit-map-wrap">
-        <iframe
-          src="${mapSrc}"
-          title="Map of ${escapeHtml(race.circuitName)}"
-          loading="lazy"
-          referrerpolicy="no-referrer-when-downgrade"
-        ></iframe>
+        ${trackPoints ? buildTrackSvg(trackPoints, race.circuitName) : trackUnavailableMarkup()}
         <span class="circuit-map-label">${escapeHtml(race.circuitName)}</span>
       </div>
       <div class="circuit-info">
@@ -265,12 +258,21 @@
           <span class="circuit-info-key">Location</span>
           <span class="circuit-info-value">${escapeHtml(location || "—")}</span>
         </div>
+        ${
+          !isNaN(lat) && !isNaN(long)
+            ? `
         <div class="circuit-info-row">
           <span class="circuit-info-key">Coordinates</span>
           <span class="circuit-info-value">${lat.toFixed(4)}, ${long.toFixed(4)}</span>
-        </div>
+        </div>`
+            : ""
+        }
         <div class="circuit-links">
-          <a class="circuit-link" href="${largeMapUrl}" target="_blank" rel="noopener noreferrer">Open map ↗</a>
+          ${
+            largeMapUrl
+              ? `<a class="circuit-link" href="${largeMapUrl}" target="_blank" rel="noopener noreferrer">Open map ↗</a>`
+              : ""
+          }
           ${
             race.circuitUrl
               ? `<a class="circuit-link" href="${escapeHtml(
@@ -282,6 +284,66 @@
       </div>
     `;
     circuitDetailEl.classList.add("is-visible");
+  }
+
+  function trackUnavailableMarkup() {
+    return '<span class="track-unavailable">Track layout not available</span>';
+  }
+
+  function buildTrackSvg(points, circuitName) {
+    const VB_W = 320;
+    const VB_H = 220;
+    const PADDING = 22;
+
+    const lons = points.map((p) => p[0]);
+    const lats = points.map((p) => p[1]);
+    const minLon = Math.min(...lons);
+    const maxLon = Math.max(...lons);
+    const minLat = Math.min(...lats);
+    const maxLat = Math.max(...lats);
+    const avgLat = (minLat + maxLat) / 2;
+    const lonScale = Math.cos((avgLat * Math.PI) / 180);
+
+    const spanX = (maxLon - minLon) * lonScale || 1;
+    const spanY = maxLat - minLat || 1;
+
+    const availW = VB_W - PADDING * 2;
+    const availH = VB_H - PADDING * 2;
+    const scale = Math.min(availW / spanX, availH / spanY);
+
+    const drawnW = spanX * scale;
+    const drawnH = spanY * scale;
+    const offsetX = (VB_W - drawnW) / 2;
+    const offsetY = (VB_H - drawnH) / 2;
+
+    const projected = points.map(([lon, lat]) => [
+      (lon - minLon) * lonScale * scale + offsetX,
+      (maxLat - lat) * scale + offsetY,
+    ]);
+
+    const d =
+      projected
+        .map(([x, y], i) => `${i === 0 ? "M" : "L"}${x.toFixed(1)},${y.toFixed(1)}`)
+        .join(" ") + " Z";
+
+    const [startX, startY] = projected[0];
+
+    return `
+      <svg class="track-svg" viewBox="0 0 ${VB_W} ${VB_H}" role="img" aria-label="Track layout of ${escapeHtml(
+      circuitName
+    )}">
+        <defs>
+          <linearGradient id="trackGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#ff2f4f" />
+            <stop offset="55%" stop-color="#e10600" />
+            <stop offset="100%" stop-color="#ff6a3d" />
+          </linearGradient>
+        </defs>
+        <path class="track-path-glow" d="${d}" />
+        <path class="track-path" d="${d}" stroke="url(#trackGradient)" />
+        <circle class="track-start" cx="${startX.toFixed(1)}" cy="${startY.toFixed(1)}" r="4.5" />
+      </svg>
+    `;
   }
 
   function timerUnit(value, label) {

@@ -19,6 +19,7 @@ public/             Static frontend (served via the assets binding)
   index.html
   style.css
   app.js
+  data/circuits.json  Bundled top-down track outlines for the current season's circuits
 src/worker.js        Worker entry point — routes /api/* requests, otherwise serves static assets
 src/api/              Route handlers (plain functions, called from worker.js)
   standings.js         GET /api/standings  — driver + constructor standings (cached 1h)
@@ -84,3 +85,16 @@ npm run deploy
 No D1, KV, or other bindings are required for this project — the API
 routes call the public Jolpica F1 API directly and cache responses using
 the Cache API.
+
+## Circuit track layouts
+
+The top-down track outline shown on the Next Race card is rendered from
+`public/data/circuits.json`, a small bundled dataset (coordinates only,
+no runtime dependency) derived from the
+[bacinger/f1-circuits](https://github.com/bacinger/f1-circuits) project.
+It's keyed by Ergast/Jolpica `circuitId` and covers the current season's
+22 circuits. If a future season adds a new circuit not in this file, the
+map area will just show "Track layout not available" for that race —
+regenerate the dataset by re-running the same extraction against an
+updated copy of `f1-circuits.geojson` and adding the new circuit's
+Ergast-id → dataset-id mapping.

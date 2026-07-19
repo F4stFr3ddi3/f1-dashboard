@@ -1,0 +1,375 @@
+:root {
+  --bg: #0a0c10;
+  --bg-alt: #12151c;
+  --card-bg: #161a22;
+  --card-border: #262c38;
+  --text: #eef1f6;
+  --text-dim: #9aa3b2;
+  --text-faint: #636d7e;
+  --accent: #e10600; /* F1 red */
+  --accent-bright: #ff2b21;
+  --accent-glow: rgba(225, 6, 0, 0.35);
+  --gold: #ffd452;
+  --green: #21c463;
+  --row-hover: #1c212c;
+  --radius: 10px;
+  --font-display: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "Consolas", "SFMono-Regular", Menlo, monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: radial-gradient(circle at top, #14171f 0%, var(--bg) 55%);
+  color: var(--text);
+  font-family: var(--font-display);
+  line-height: 1.4;
+  min-height: 100vh;
+}
+
+a {
+  color: var(--accent-bright);
+}
+
+/* ---------- Header ---------- */
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: linear-gradient(180deg, #0d0f14 0%, #0a0c10 100%);
+  border-bottom: 1px solid var(--card-border);
+}
+
+.header-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 16px 20px 12px;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brand-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.95rem;
+  letter-spacing: 0.03em;
+  padding: 4px 8px;
+  border-radius: 4px;
+  box-shadow: 0 0 16px var(--accent-glow);
+}
+
+.brand-text {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.header-sub {
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.stripe {
+  height: 4px;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--accent) 0px,
+    var(--accent) 40px,
+    transparent 40px,
+    transparent 60px
+  );
+  opacity: 0.9;
+}
+
+/* ---------- Layout ---------- */
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.grid-two {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+@media (max-width: 760px) {
+  .grid-two {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- Cards ---------- */
+
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  padding: 18px 18px 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+}
+
+.card-title {
+  margin: 0 0 12px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text);
+  border-left: 3px solid var(--accent);
+  padding-left: 10px;
+}
+
+.loading {
+  color: var(--text-faint);
+  font-style: italic;
+  padding: 12px 4px;
+}
+
+.error-text {
+  color: var(--accent-bright);
+  padding: 12px 4px;
+}
+
+/* ---------- Countdown ---------- */
+
+.countdown-card {
+  background: linear-gradient(135deg, #1a0f10 0%, var(--card-bg) 55%);
+  border-color: #3a1a18;
+}
+
+.countdown-content {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.race-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.race-name {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.race-location {
+  color: var(--text-dim);
+  font-size: 0.9rem;
+}
+
+.race-date {
+  color: var(--text-faint);
+  font-size: 0.82rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.countdown-timer {
+  display: flex;
+  gap: 12px;
+}
+
+.timer-unit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 58px;
+  background: var(--bg-alt);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  padding: 8px 6px;
+}
+
+.timer-value {
+  font-family: var(--font-mono);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--accent-bright);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.timer-label {
+  margin-top: 4px;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-faint);
+}
+
+.race-live {
+  color: var(--green);
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+@media (max-width: 480px) {
+  .countdown-content {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .countdown-timer {
+    gap: 8px;
+  }
+  .timer-unit {
+    min-width: 50px;
+    padding: 6px 4px;
+  }
+  .timer-value {
+    font-size: 1.2rem;
+  }
+}
+
+/* ---------- Tables ---------- */
+
+.table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  min-width: 360px;
+}
+
+.data-table thead th {
+  text-align: left;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-faint);
+  border-bottom: 1px solid var(--card-border);
+  padding: 8px 10px;
+  white-space: nowrap;
+}
+
+.data-table tbody td {
+  padding: 10px 10px;
+  border-bottom: 1px solid #1d222c;
+  white-space: nowrap;
+}
+
+.data-table tbody tr:hover {
+  background: var(--row-hover);
+}
+
+.data-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.col-pos {
+  width: 44px;
+  text-align: center;
+}
+
+.col-num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-family: var(--font-mono);
+}
+
+.pos-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  font-weight: 700;
+  font-size: 0.8rem;
+  background: var(--bg-alt);
+  color: var(--text-dim);
+}
+
+.pos-1 {
+  background: var(--gold);
+  color: #23200a;
+}
+
+.pos-2 {
+  background: #c9d0dc;
+  color: #22242b;
+}
+
+.pos-3 {
+  background: #d99a5b;
+  color: #2a1a08;
+}
+
+.driver-name {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.driver-code {
+  color: var(--text-faint);
+  font-size: 0.78rem;
+  margin-left: 6px;
+  font-family: var(--font-mono);
+}
+
+.team-name {
+  color: var(--text-dim);
+}
+
+/* ---------- Footer ---------- */
+
+.site-footer {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 10px 20px 40px;
+  color: var(--text-faint);
+  font-size: 0.78rem;
+  text-align: center;
+}
+
+.site-footer a {
+  color: var(--text-dim);
+}
+
+@media (max-width: 480px) {
+  .header-inner {
+    padding: 14px 16px 10px;
+  }
+  .container {
+    padding: 16px;
+  }
+  .card {
+    padding: 14px 14px 6px;
+  }
+}

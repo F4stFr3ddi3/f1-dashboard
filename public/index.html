@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>F1 Dashboard</title>
+<meta name="description" content="Live-ish F1 standings, schedule, and race results." />
+<link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+<header class="site-header">
+  <div class="header-inner">
+    <div class="brand">
+      <span class="brand-mark">F1</span>
+      <span class="brand-text">Dashboard</span>
+    </div>
+    <div class="header-sub" id="season-label">Loading season…</div>
+  </div>
+  <div class="stripe" aria-hidden="true"></div>
+</header>
+
+<main class="container">
+
+  <section class="card countdown-card" aria-labelledby="countdown-heading">
+    <h2 id="countdown-heading" class="card-title">Next Race</h2>
+    <div id="countdown-content" class="countdown-content">
+      <p class="loading">Loading next race…</p>
+    </div>
+  </section>
+
+  <div class="grid-two">
+    <section class="card" aria-labelledby="driver-standings-heading">
+      <h2 id="driver-standings-heading" class="card-title">Driver Standings</h2>
+      <div class="table-wrap">
+        <table class="data-table" id="driver-standings-table">
+          <thead>
+            <tr>
+              <th class="col-pos">Pos</th>
+              <th>Driver</th>
+              <th>Team</th>
+              <th class="col-num">Pts</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td colspan="4" class="loading">Loading standings…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="constructor-standings-heading">
+      <h2 id="constructor-standings-heading" class="card-title">Constructor Standings</h2>
+      <div class="table-wrap">
+        <table class="data-table" id="constructor-standings-table">
+          <thead>
+            <tr>
+              <th class="col-pos">Pos</th>
+              <th>Team</th>
+              <th class="col-num">Wins</th>
+              <th class="col-num">Pts</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td colspan="4" class="loading">Loading standings…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <section class="card" aria-labelledby="results-heading">
+    <h2 id="results-heading" class="card-title">Last Race Results</h2>
+    <div class="table-wrap">
+      <table class="data-table" id="results-table">
+        <thead>
+          <tr>
+            <th class="col-pos">Pos</th>
+            <th>Driver</th>
+            <th>Team</th>
+            <th class="col-num">Grid</th>
+            <th>Time / Status</th>
+            <th class="col-num">Pts</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td colspan="6" class="loading">Loading results…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <p>Data via <a href="https://api.jolpi.ca/" target="_blank" rel="noopener noreferrer">Jolpica F1 API</a> (Ergast-compatible). Not affiliated with Formula 1.</p>
+</footer>
+
+<script src="/app.js"></script>
+</body>
+</html>

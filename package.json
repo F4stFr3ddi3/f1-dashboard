@@ -1,0 +1,13 @@
+{
+  "name": "f1-dashboard",
+  "version": "1.0.0",
+  "private": true,
+  "description": "F1 standings, schedule, and results dashboard built on Cloudflare Pages.",
+  "scripts": {
+    "dev": "wrangler pages dev public",
+    "deploy": "wrangler pages deploy public"
+  },
+  "devDependencies": {
+    "wrangler": "^3.90.0"
+  }
+}

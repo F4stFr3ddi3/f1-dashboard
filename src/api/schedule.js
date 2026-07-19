@@ -3,8 +3,8 @@
 const SCHEDULE_URL = "https://api.jolpi.ca/ergast/f1/current.json";
 const CACHE_SECONDS = 60 * 60 * 6; // 6 hours
 
-export async function onRequestGet(context) {
-  const cacheKey = new Request(context.request.url, context.request);
+export async function handleSchedule(request, ctx) {
+  const cacheKey = new Request(request.url, request);
   const cache = caches.default;
 
   const cached = await cache.match(cacheKey);
@@ -58,7 +58,7 @@ export async function onRequestGet(context) {
     },
   });
 
-  context.waitUntil(cache.put(cacheKey, response.clone()));
+  ctx.waitUntil(cache.put(cacheKey, response.clone()));
 
   return response;
 }

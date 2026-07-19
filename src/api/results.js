@@ -3,8 +3,8 @@
 const RESULTS_URL = "https://api.jolpi.ca/ergast/f1/current/last/results.json";
 const CACHE_SECONDS = 60 * 60; // 1 hour
 
-export async function onRequestGet(context) {
-  const cacheKey = new Request(context.request.url, context.request);
+export async function handleResults(request, ctx) {
+  const cacheKey = new Request(request.url, request);
   const cache = caches.default;
 
   const cached = await cache.match(cacheKey);
@@ -33,7 +33,7 @@ export async function onRequestGet(context) {
         "Cache-Control": `public, max-age=${CACHE_SECONDS}`,
       },
     });
-    context.waitUntil(cache.put(cacheKey, emptyResponse.clone()));
+    ctx.waitUntil(cache.put(cacheKey, emptyResponse.clone()));
     return emptyResponse;
   }
 
@@ -83,7 +83,7 @@ export async function onRequestGet(context) {
     },
   });
 
-  context.waitUntil(cache.put(cacheKey, response.clone()));
+  ctx.waitUntil(cache.put(cacheKey, response.clone()));
 
   return response;
 }

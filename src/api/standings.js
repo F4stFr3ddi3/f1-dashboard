@@ -4,8 +4,8 @@ const DRIVERS_URL = "https://api.jolpi.ca/ergast/f1/current/driverStandings.json
 const CONSTRUCTORS_URL = "https://api.jolpi.ca/ergast/f1/current/constructorStandings.json";
 const CACHE_SECONDS = 60 * 60; // 1 hour
 
-export async function onRequestGet(context) {
-  const cacheKey = new Request(context.request.url, context.request);
+export async function handleStandings(request, ctx) {
+  const cacheKey = new Request(request.url, request);
   const cache = caches.default;
 
   const cached = await cache.match(cacheKey);
@@ -72,7 +72,7 @@ export async function onRequestGet(context) {
     },
   });
 
-  context.waitUntil(cache.put(cacheKey, response.clone()));
+  ctx.waitUntil(cache.put(cacheKey, response.clone()));
 
   return response;
 }

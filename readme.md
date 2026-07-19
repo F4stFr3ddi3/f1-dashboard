@@ -1,28 +1,31 @@
 # F1 Dashboard
 
 A dark-themed, mobile-friendly F1 dashboard showing driver/constructor
-standings, the season schedule with a countdown to the next race, and
-results from the most recently completed race.
+standings, the season schedule with a countdown to the next race
+(including circuit maps), and results from the most recently completed
+race.
 
 Built as a static site (vanilla HTML/CSS/JS, no build step, no framework)
-deployed on **Cloudflare Pages**, with server-side data fetching handled by
-**Cloudflare Pages Functions**. Data comes from the free
+deployed on a **Cloudflare Worker**, using the Worker's built-in static
+assets binding to serve `public/` and a small router in `src/worker.js`
+for the API routes. Data comes from the free
 [Jolpica F1 API](https://api.jolpi.ca/ergast/f1/) (an Ergast-compatible F1
 data API).
 
 ## Project structure
 
 ```
-public/             Static frontend (served as-is)
+public/             Static frontend (served via the assets binding)
   index.html
   style.css
   app.js
-functions/api/       Cloudflare Pages Functions (serverless endpoints)
-  standings.js        GET /api/standings  — driver + constructor standings (cached 1h)
-  schedule.js          GET /api/schedule   — full season race schedule (cached 6h)
-  results.js           GET /api/results    — results from the last completed race (cached 1h)
-wrangler.toml        Cloudflare Pages project config
-package.json         npm scripts for local dev / deploy
+src/worker.js        Worker entry point — routes /api/* requests, otherwise serves static assets
+src/api/              Route handlers (plain functions, called from worker.js)
+  standings.js         GET /api/standings  — driver + constructor standings (cached 1h)
+  schedule.js           GET /api/schedule   — full season race schedule (cached 6h)
+  results.js            GET /api/results    — results from the last completed race (cached 1h)
+wrangler.toml         Cloudflare Worker config (entry point + assets binding)
+package.json          npm scripts for local dev / deploy
 ```
 
 ## Local development
@@ -34,9 +37,9 @@ npm install
 npm run dev
 ```
 
-This runs `wrangler pages dev public`, which serves the `public/` folder
-and executes the Functions in `functions/api/` locally, just like they'd
-run in production. By default it's available at `http://localhost:8788`.
+This runs `wrangler dev`, which serves the Worker locally — static files
+from `public/` via the assets binding, and the `/api/*` routes handled by
+`src/worker.js`. By default it's available at `http://localhost:8787`.
 
 ## Pushing to GitHub
 
@@ -57,22 +60,27 @@ git branch -M main
 git push -u origin main
 ```
 
-## Connecting to Cloudflare Pages
+## Connecting to Cloudflare Workers
 
 1. Log in to the [Cloudflare dashboard](https://dash.cloudflare.com/) and
    go to **Workers & Pages**.
-2. Click **Create application** → **Pages** → **Connect to Git**.
+2. Click **Create application** → **Workers** tab → **Import a repository**
+   (or "Connect to Git", depending on the current UI wording).
 3. Select the `f1-dashboard` GitHub repository you just pushed.
-4. In the build settings:
-   - **Framework preset:** None
-   - **Build command:** *(leave empty — there is no build step)*
-   - **Build output directory:** `public`
-5. Click **Save and Deploy**. Cloudflare will detect `functions/api/*.js`
-   automatically and deploy them as Pages Functions alongside the static
-   site — no extra configuration needed.
-6. Every subsequent push to the connected branch will trigger an automatic
-   redeploy.
+4. Leave the build command empty — there is no build step. Cloudflare
+   reads `wrangler.toml` to find the entry point (`src/worker.js`) and the
+   static assets directory (`public`) automatically.
+5. Click **Save and Deploy**.
+6. Every subsequent push to the connected branch should trigger an
+   automatic redeploy — confirm this is enabled under
+   **Settings → Builds & deployments** if it doesn't happen on its own.
+
+Alternatively, you can deploy directly from the CLI without Git integration:
+
+```bash
+npm run deploy
+```
 
 No D1, KV, or other bindings are required for this project — the API
-functions call the public Jolpica F1 API directly and cache responses
-using the Cache API.
+routes call the public Jolpica F1 API directly and cache responses using
+the Cache API.

@@ -9,6 +9,7 @@
   );
   const resultsTbody = document.querySelector("#results-table tbody");
   const resultsHeading = document.getElementById("results-heading");
+  const circuitDetailEl = document.getElementById("circuit-detail");
 
   let countdownTimerId = null;
 
@@ -160,6 +161,7 @@
 
       renderCountdownShell(nextRace);
       startCountdownTimer(nextRace);
+      renderCircuitDetail(nextRace);
     } catch (err) {
       console.error("Failed to load schedule", err);
       countdownContentEl.innerHTML =
@@ -203,9 +205,8 @@
 
     countdownContentEl.innerHTML = `
       <div class="race-info">
-        <div class="race-name">Round ${escapeHtml(race.round)} — ${escapeHtml(
-      race.raceName
-    )}</div>
+        <div class="race-round">Round ${escapeHtml(race.round)}</div>
+        <div class="race-name">${escapeHtml(race.raceName)}</div>
         <div class="race-location">${escapeHtml(race.circuitName)}${
       location ? " · " + escapeHtml(location) : ""
     }</div>
@@ -218,6 +219,69 @@
         ${timerUnit("--", "Sec")}
       </div>
     `;
+  }
+
+  function renderCircuitDetail(race) {
+    const lat = parseFloat(race.lat);
+    const long = parseFloat(race.long);
+
+    if (isNaN(lat) || isNaN(long)) {
+      circuitDetailEl.classList.remove("is-visible");
+      circuitDetailEl.innerHTML = "";
+      return;
+    }
+
+    const latOffset = 0.025;
+    const lonOffset = 0.025 / Math.max(Math.cos((lat * Math.PI) / 180), 0.15);
+    const bbox = [
+      long - lonOffset,
+      lat - latOffset,
+      long + lonOffset,
+      lat + latOffset,
+    ].join(",");
+    const mapSrc = `https://www.openstreetmap.org/export/embed.html?bbox=${encodeURIComponent(
+      bbox
+    )}&layer=mapnik&marker=${lat}%2C${long}`;
+    const largeMapUrl = `https://www.openstreetmap.org/?mlat=${lat}&mlon=${long}#map=15/${lat}/${long}`;
+    const location = [race.locality, race.country].filter(Boolean).join(", ");
+
+    circuitDetailEl.innerHTML = `
+      <div class="circuit-map-wrap">
+        <iframe
+          src="${mapSrc}"
+          title="Map of ${escapeHtml(race.circuitName)}"
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+        ></iframe>
+        <span class="circuit-map-label">${escapeHtml(race.circuitName)}</span>
+      </div>
+      <div class="circuit-info">
+        <div class="circuit-info-heading">Circuit Info</div>
+        <div class="circuit-info-row">
+          <span class="circuit-info-key">Circuit</span>
+          <span class="circuit-info-value">${escapeHtml(race.circuitName)}</span>
+        </div>
+        <div class="circuit-info-row">
+          <span class="circuit-info-key">Location</span>
+          <span class="circuit-info-value">${escapeHtml(location || "—")}</span>
+        </div>
+        <div class="circuit-info-row">
+          <span class="circuit-info-key">Coordinates</span>
+          <span class="circuit-info-value">${lat.toFixed(4)}, ${long.toFixed(4)}</span>
+        </div>
+        <div class="circuit-links">
+          <a class="circuit-link" href="${largeMapUrl}" target="_blank" rel="noopener noreferrer">Open map ↗</a>
+          ${
+            race.circuitUrl
+              ? `<a class="circuit-link" href="${escapeHtml(
+                  race.circuitUrl
+                )}" target="_blank" rel="noopener noreferrer">Circuit history ↗</a>`
+              : ""
+          }
+        </div>
+      </div>
+    `;
+    circuitDetailEl.classList.add("is-visible");
   }
 
   function timerUnit(value, label) {
